@@ -81,11 +81,13 @@ app.post('/api/users/:_id/exercises', async function (req, res) {
     return res.status(400).json({error : "Invalid field duration."});
   }
 
+  const dateStringFormat = req.body.date ? new Date(req.body.date) : new Date();
+
   const exercise = new Exercise({
     username: user.username,
     description: req.body.description,
     duration: req.body.duration,
-    date: req.body.date ? new Date(req.body.date) : new Date()
+    date: dateStringFormat.toDateString()
   });
 
   exercise.save(function(err, result) {
