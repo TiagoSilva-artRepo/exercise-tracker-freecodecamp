@@ -21,7 +21,15 @@ const userSchema = new Schema({
   username: { type: String, required: true }
 });
 
+const exerciseSchema = new Schema({
+  username: { type: String, required: true },
+  description: { type: String, required: true },
+  duration: { type: Number, required: true },
+  date: { type: Number, }
+});
+
 const User = mongoose.model("User", userSchema);
+const Exercise = mongoose.model("Exercise", exerciseSchema);
 
 app.post('/api/users', function (req, res) {
 
@@ -52,6 +60,44 @@ app.get('/api/users', function (req, res) {
     }
   });
 });
+
+app.post('/api/users/:_id/exercises', async function (req, res) {
+
+  if (!req.params._id || req.params._id ===0) {
+    return res.status(400).json({error : "Insert valid Id."});
+  }
+
+  const user = await User.findById(req.params._id).exec();
+
+  if (!user) {
+    return res.status(400).json({error : "User doesn't exist."});
+  }
+
+  if (!req.body.description || req.body.description.length === 0) {
+    return res.status(400).json({error : "Required field description."});
+  }
+
+  if (!req.body.duration || req.body.duration.length <= 0) {
+    return res.status(400).json({error : "Invalid field duration."});
+  }
+
+  const exercise = new Exercise({
+    username: user.username,
+    description: req.body.description,
+    duration: req.body.duration,
+    date: req.body.date ? new Date(req.body.date) : new Date()
+  });
+
+  exercise.save(function(err, result) {
+    if (err) {
+      res.send(err);
+    } else {
+      res.json(result);
+    }
+  });
+
+});
+
 
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening on port ' + listener.address().port)
