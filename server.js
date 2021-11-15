@@ -28,19 +28,29 @@ app.post('/api/users', function (req, res) {
   if (!req.body.username || req.body.username.length === 0) {
     return res.status(400).json({error : "Required field username."});
   }
-  
-  try {    
-    const user = new User({
+ 
+  const user = new User({
       username: req.body.username
-    });
+  });
   
-    user.save();
-  
-    res.json(user);
-  } catch (error) {
-    res.status(500).send(error)
-  }
+  user.save(function(err, result) {
+    if (err) {
+      res.send(err);
+    } else {
+      res.json(result);
+    }
+  });
+    
+});
 
+app.get('/api/users', function (req, res) {
+  User.find({}, function(err, result) {
+    if (err) {
+      res.send(err);
+    } else {
+      res.json(result);
+    }
+  });
 });
 
 const listener = app.listen(process.env.PORT || 3000, () => {
