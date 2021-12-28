@@ -102,9 +102,10 @@ app.post('/api/users/:_id/exercises', async function (req, res) {
 
 app.get('/api/users/:_id/logs', async function (req, res) {
   const user = await User.findById(req.params._id).lean().exec();
+  const exercises = await Exercise.find({username: user.username}).exec();
   const numberOfExercises = await Exercise.find({username: user.username}).count().exec();
   user.count = numberOfExercises;
-  console.log(user);
+  user.log = exercises;
   res.json(user);
 });
 
