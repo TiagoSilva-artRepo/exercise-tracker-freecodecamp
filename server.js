@@ -67,7 +67,7 @@ app.post('/api/users/:_id/exercises', async function (req, res) {
     return res.status(400).json({error : "Insert valid Id."});
   }
 
-  const user = await User.findById(req.params._id).exec();
+  const user = await User.findById(req.params._id).lean().exec();
 
   if (!user) {
     return res.status(400).json({error : "User doesn't exist."});
@@ -90,11 +90,15 @@ app.post('/api/users/:_id/exercises', async function (req, res) {
     date: dateStringFormat.toDateString()
   });
 
+  user.description = exercise.description;
+  user.duration = exercise.duration;
+  user.date = exercise.date;
+
   exercise.save(function(err, result) {
     if (err) {
       res.send(err);
     } else {
-      res.json(result);
+      res.json(user);
     }
   });
 
