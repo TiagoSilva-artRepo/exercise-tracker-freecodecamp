@@ -100,6 +100,23 @@ app.post('/api/users/:_id/exercises', async function (req, res) {
 
 });
 
+app.get('/api/users/:_id/logs', async function (req, res) {
+  const user = await User.findById(req.params._id).exec();
+  const numberOfExercises = await Exercise.find({username: user.username}).count().exec();
+  const result = {user, count: numberOfExercises };  
+  res.json(resut);
+});
+
+app.get('/api/exercises', function (req, res) {
+  Exercise.find({}, function(err, result) {
+    if (err) {
+      res.send(err);
+    } else {
+      res.json(result);
+    }
+  });
+});
+
 
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening on port ' + listener.address().port)
