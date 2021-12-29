@@ -104,11 +104,10 @@ app.post('/api/users/:_id/exercises', async function (req, res) {
 
 });
 
-app.get('/api/users/:_id/logs', async function (req, res) {
+app.get('/api/users/:_id/logs/:_from?/:_to?/:_limit?', async function (req, res) {
   const user = await User.findById(req.params._id).lean().exec();
-  const exercises = await Exercise.find({username: user.username}).lean().exec();
+  const exercises = await Exercise.find({username: user.username, date: { $gte: req.params._from, $lte: req.params._to }}).limit(req.params._limit).lean().exec();
   const numberOfExercises = await Exercise.find({username: user.username}).count().exec();
-
 
   exercises.forEach(element => {
     element.date = element.date.toDateString()
