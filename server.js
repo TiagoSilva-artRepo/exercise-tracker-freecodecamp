@@ -92,7 +92,7 @@ app.post('/api/users/:_id/exercises', async function (req, res) {
 
   user.description = exercise.description;
   user.duration = exercise.duration;
-  user.date = exercise.date;
+  user.date = exercise.date.toDateString();
 
   exercise.save(function(err, result) {
     if (err) {
