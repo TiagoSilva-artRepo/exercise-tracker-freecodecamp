@@ -104,28 +104,25 @@ app.post('/api/users/:_id/exercises', async function (req, res) {
 
 });
 
-app.get('/api/users/:_id/logs/:_from?/:_to?/:_limit?', async function (req, res) {
+app.get('/api/users/:_id/logs', async function (req, res) {
   const user = await User.findById(req.params._id).lean().exec();
+
   var query = {
       username: user.username
   };
 
-  if (req.params._from && req.params._to) {
-    query.date = { $gte: req.params._from, $lte: req.params._to }
-  };
-
-  if (req.params._from) {
-    query.date = { $gte: req.params._from };
-  };
-
-  if (req.params._to) {
-    query.date = { $lte: req.params._to };
+  if (req.query.from && req.query.to) {
+    query.date = { $gte: req.query.from, $lte: req.query.to }
+  } else if (req.query.from) {
+    query.date = { $gte: req.query.from };
+  } else if (req.query.to) {
+    query.date = { $lte: req.query.to };
   };
 
   let exercises = {};
 
-  if (req.params._limit) {
-    exercises = await Exercise.find(query).limit(req.params._limit).lean().exec();
+  if (req.query.limit) {
+    exercises = await Exercise.find(query).limit(parseInt(req.query.limit)).lean().exec();
   } else {
     exercises = await Exercise.find(query).lean().exec();
   };
