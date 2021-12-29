@@ -28,15 +28,7 @@ const userSchema = new Schema({
     ]
 });
 
-const exerciseSchema = new Schema({
-  username: { type: String, required: true },
-  description: { type: String, required: true },
-  duration: { type: Number, required: true },
-  date: { type: Date, }
-});
-
 const User = mongoose.model("User", userSchema);
-const Exercise = mongoose.model("Exercise", exerciseSchema);
 
 app.post('/api/users', function (req, res) {
 
@@ -90,16 +82,9 @@ app.post('/api/users/:_id/exercises', async function (req, res) {
 
   const dateStringFormat = req.body.date ? new Date(req.body.date) : new Date();
 
-  const exercise = new Exercise({
-    username: user.username,
-    description: req.body.description,
-    duration: Number(req.body.duration),
-    date: dateStringFormat.toDateString()
-  });
-
-  user.description = req.body.description;
-  user.duration = Number(req.body.duration);
-  user.date = dateStringFormat.toDateString();
+  user.exercices.description = req.body.description;
+  user.exercises.duration = Number(req.body.duration);
+  user.exercises.date = dateStringFormat.toDateString();
 
   User.findByIdAndUpdate(req.params._id, user, function(err, result) {
     if (err) {
@@ -129,12 +114,12 @@ app.get('/api/users/:_id/logs', async function (req, res) {
   let exercises = {};
 
   if (req.query.limit) {
-    exercises = await Exercise.find(query).limit(parseInt(req.query.limit)).lean().exec();
+    exercises = await User.find(query).limit(parseInt(req.query.limit)).lean().exec();
   } else {
-    exercises = await Exercise.find(query).lean().exec();
+    exercises = await User.find(query).lean().exec();
   };
 
-  const numberOfExercises = await Exercise.find({username: user.username}).count().exec();
+  const numberOfExercises = await User.find({username: user.username}).count().exec();
 
   exercises.forEach(element => {
     element.date = element.date.toDateString()
@@ -144,17 +129,6 @@ app.get('/api/users/:_id/logs', async function (req, res) {
   user.log = exercises;
   res.json(user);
 });
-
-app.get('/api/exercises', function (req, res) {
-  Exercise.find({}, function(err, result) {
-    if (err) {
-      res.send(err);
-    } else {
-      res.json(result);
-    }
-  });
-});
-
 
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening on port ' + listener.address().port)
