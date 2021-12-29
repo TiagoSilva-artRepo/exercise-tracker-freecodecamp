@@ -86,12 +86,12 @@ app.post('/api/users/:_id/exercises', async function (req, res) {
   const exercise = new Exercise({
     username: user.username,
     description: req.body.description,
-    duration: req.body.duration,
+    duration: Number(req.body.duration),
     date: dateStringFormat.toDateString()
   });
 
   user.description = exercise.description;
-  user.duration = parseInt(exercise.duration);
+  user.duration = Number(exercise.duration);
   user.date = exercise.date.toDateString();
 
   exercise.save(function(err, result) {
