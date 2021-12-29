@@ -106,7 +106,30 @@ app.post('/api/users/:_id/exercises', async function (req, res) {
 
 app.get('/api/users/:_id/logs/:_from?/:_to?/:_limit?', async function (req, res) {
   const user = await User.findById(req.params._id).lean().exec();
-  const exercises = await Exercise.find({username: user.username, date: { $gte: req.params._from, $lte: req.params._to }}).limit(req.params._limit).lean().exec();
+  var query = {
+      username: user.username
+  };
+
+  if (req.params._from && req.params._to) {
+    query.date = { $gte: req.params._from, $lte: req.params._to }
+  };
+
+  if (req.params._from) {
+    query.date = { $gte: req.params._from };
+  };
+
+  if (req.params._to) {
+    query.date = { $lte: req.params._to };
+  };
+
+  let exercises = {};
+
+  if (req.params._limit) {
+    exercises = await Exercise.find(query).limit(req.params._limit).lean().exec();
+  } else {
+    exercises = await Exercise.find(query).lean().exec();
+  };
+
   const numberOfExercises = await Exercise.find({username: user.username}).count().exec();
 
   exercises.forEach(element => {
