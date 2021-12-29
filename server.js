@@ -88,9 +88,9 @@ app.post('/api/users/:_id/exercises', async function (req, res) {
     date: dateStringFormat.toDateString()
   };
 
-  user.exercices.push(exercise);
-
-  console.log(user);
+  user.description = exercise.description;
+  user.duration = exercise.duration;
+  user.date = exercise.date;
 
   User.findByIdAndUpdate(req.params._id, {$push: { exercices: exercise } }, function(err, result) {
     if (err) {
