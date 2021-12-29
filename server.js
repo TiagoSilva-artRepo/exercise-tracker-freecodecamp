@@ -18,7 +18,14 @@ app.get('/', (req, res) => {
 });
 
 const userSchema = new Schema({
-  username: { type: String, required: true }
+  username: { type: String, required: true },
+  exercices: [
+      {
+        description: { type: String },
+        duration: { type: Number },
+        date: { type: String, required: false }
+      }
+    ]
 });
 
 const exerciseSchema = new Schema({
@@ -90,11 +97,11 @@ app.post('/api/users/:_id/exercises', async function (req, res) {
     date: dateStringFormat.toDateString()
   });
 
-  user.description = exercise.description;
-  user.duration = Number(exercise.duration);
-  user.date = exercise.date.toDateString();
+  user.description = req.body.description;
+  user.duration = Number(req.body.duration);
+  user.date = dateStringFormat.toDateString();
 
-  exercise.save(function(err, result) {
+  User.findByIdAndUpdate(req.params._id, user, function(err, result) {
     if (err) {
       res.send(err);
     } else {
