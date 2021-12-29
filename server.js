@@ -82,18 +82,19 @@ app.post('/api/users/:_id/exercises', async function (req, res) {
 
   const dateStringFormat = req.body.date ? new Date(req.body.date) : new Date();
 
-  user.exercices.description = req.body.description;
-  user.exercises.duration = Number(req.body.duration);
-  user.exercises.date = dateStringFormat.toDateString();
+    const exercise = { 
+    description: req.body.description,
+    duration: Number(req.body.duration),
+    date: dateStringFormat.toDateString()
+  };
 
-  User.findByIdAndUpdate(req.params._id, user, function(err, result) {
+  User.findByIdAndUpdate(req.params._id, {$push: { exercices: exercise } }, function(err, result) {
     if (err) {
       res.send(err);
     } else {
       res.json(user);
     }
   });
-
 });
 
 app.get('/api/users/:_id/logs', async function (req, res) {
