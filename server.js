@@ -22,6 +22,7 @@ const userSchema = new Schema({
 });
 
 const exerciseSchema = new Schema({
+  username: { type: String, required: true },
   description: { type: String, required: true },
   duration: { type: Number, required: true },
   date: { type: Date, }
@@ -83,6 +84,7 @@ app.post('/api/users/:_id/exercises', async function (req, res) {
   const dateStringFormat = req.body.date ? new Date(req.body.date) : new Date();
 
   const exercise = new Exercise({
+    username: user.username,
     description: req.body.description,
     duration: req.body.duration,
     date: dateStringFormat.toDateString()
