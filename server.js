@@ -111,7 +111,7 @@ app.get('/api/users/:_id/logs', async function (req, res) {
 
 
   exercises.forEach(element => {
-    element.date = element.date.toString()
+    element.date = element.date.toDateString()
   });
 
   user.count = numberOfExercises;
