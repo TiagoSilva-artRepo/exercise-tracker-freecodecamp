@@ -139,8 +139,9 @@ app.get('/api/users/:_id/logs', async function (req, res) {
     element.date = element.date.toDateString()
   });
 
-  user.log = exercises;
   */
+ 
+  user.log = exercises;
   user.count = numberOfExercises;
   res.json(user);
 });
