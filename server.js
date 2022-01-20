@@ -110,7 +110,7 @@ app.post('/api/users/:_id/exercises', async function (req, res) {
 app.get('/api/users/:_id/logs', async function (req, res) {
   const user = await User.findById(req.params._id).lean().exec();
   const numberOfExercises = Object.keys(user.log).length;
-  
+
   var fromDate = new Date(req.query.from);
   var toDate = new Date(req.query.to);
 
@@ -126,18 +126,17 @@ app.get('/api/users/:_id/logs', async function (req, res) {
   var result;
 
   if (req.query.limit && query) {
-    console.log('here');
     result = await User.aggregate().match({'username' : user.username}).unwind('log').match({'log.date' : query }).limit(parseInt(req.query.limit))
                     .group({'_id':'$_id', 'username': {"$first": "$username"}, 'log': {'$push': '$log'}}).exec();
     result = result[0];
+    numberOfExercises = Object.keys(result.log).length;
   } else if (query) {
-    console.log('here');
     result = await User.aggregate().match({'username' : user.username}).unwind('log').match({'log.date' : query })
                     .group({'_id':'$_id', 'username': {"$first": "$username"}, 'log': {'$push': '$log'}}).exec();
     result = result[0];
+    numberOfExercises = Object.keys(result.log).length;
   } else {
     result = user;
-    console.log(result)
   }; 
 
   result.log.forEach(element => {
