@@ -19,7 +19,7 @@ app.get('/', (req, res) => {
 
 const userSchema = new Schema({
   username: { type: String, required: true },
-  exercices: [
+  log: [
       {
         description: { type: String },
         duration: { type: Number },
@@ -89,7 +89,7 @@ app.post('/api/users/:_id/exercises', async function (req, res) {
   };
 
   User.findByIdAndUpdate(req.params._id,
-    {$push: { exercices: exercise } },
+    {$push: { log: exercise } },
     { new: true},
      function(err, result) {
     if (err) {
@@ -140,8 +140,7 @@ app.get('/api/users/:_id/logs', async function (req, res) {
   });
 
   */
- 
-  user.log = exercises;
+
   user.count = numberOfExercises;
   res.json(user);
 });
