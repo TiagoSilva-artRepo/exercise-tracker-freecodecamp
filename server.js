@@ -110,6 +110,8 @@ app.post('/api/users/:_id/exercises', async function (req, res) {
 
 app.get('/api/users/:_id/logs', async function (req, res) {
   const user = await User.findById(req.params._id).lean().exec();
+
+  /*
   const numberOfExercises = Object.keys(user.exercices).length;
 
   var query = {
@@ -138,8 +140,9 @@ app.get('/api/users/:_id/logs', async function (req, res) {
     element.date = element.date.toDateString()
   });
 
-  /*user.count = numberOfExercises;
-  user.log = exercises;*/
+  user.count = numberOfExercises;
+  user.log = exercises;
+  */
   res.json(user);
 });
 
