@@ -23,7 +23,7 @@ const userSchema = new Schema({
       {
         description: { type: String },
         duration: { type: Number },
-        date: { type: String, required: false }
+        date: { type: Date, required: false }
       }
     ]
 });
@@ -85,7 +85,7 @@ app.post('/api/users/:_id/exercises', async function (req, res) {
   const exercise = { 
     description: req.body.description,
     duration: Number(req.body.duration),
-    date: dateStringFormat.toDateString()
+    date: dateStringFormat
   };
 
   User.findByIdAndUpdate(req.params._id,
@@ -98,11 +98,10 @@ app.post('/api/users/:_id/exercises', async function (req, res) {
       let returnObj ={
         "_id":req.params._id,
         "username":user.username,
-        "date":exercise.date,
+        "date":exercise.date.toDateString(),
         "duration":parseInt(exercise.duration),
         "description":exercise.description
       }
-      console.log(returnObj)
       return res.json(returnObj)      
     }
   });
@@ -111,35 +110,42 @@ app.post('/api/users/:_id/exercises', async function (req, res) {
 app.get('/api/users/:_id/logs', async function (req, res) {
   const user = await User.findById(req.params._id).lean().exec();
   const numberOfExercises = Object.keys(user.log).length;
-  /*
 
-  var query = {
+ /*var query = {
       username: user.username,
-  };
-
+      log: ""
+  };  
+  
   if (req.query.from && req.query.to) {
-    query.exercices.date = { $gte: req.query.from, $lte: req.query.to };
+    query.log = { $gte: req.query.from, $lte: req.query.to };
   } else if (req.query.from) {
-    query.exercises.date = { $gte: req.query.from };
+    query.log = { $gte: req.query.from };
   } else if (req.query.to) {
-    query.exercises.date = { $lte: req.query.to };
+    query.log = { $lte: req.query.to };
   };
-
+  
+  var fromDate = new Date(req.query.from);
+  var toDate = new Date(req.query.to);
+  
+  var query = {"username": user.username, "log.date": { $gte: fromDate } };
+  
   console.log(query);
-
-  let exercises = {};
-
+  
+  let result = {};
+  
   if (req.query.limit) {
-    exercises = await User.find(query).limit(parseInt(req.query.limit)).lean().exec();
+    result = await User.find(query).limit(parseInt(req.query.limit)).lean().exec();
   } else {
-    exercises = await User.find(query).lean().exec();
+    result = await User.find(query).lean().exec();
   };
-
-  exercises.forEach(element => {
-    element.date = element.date.toDateString()
-  });
-
+  
+  console.log(result);
   */
+
+  /*exercises.forEach(element => {
+    element.date = element.date.toDateString()
+  });*/
+
 
   user.count = numberOfExercises;
   res.json(user);
