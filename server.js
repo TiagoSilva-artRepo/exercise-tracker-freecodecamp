@@ -82,39 +82,49 @@ app.post('/api/users/:_id/exercises', async function (req, res) {
 
   const dateStringFormat = req.body.date ? new Date(req.body.date) : new Date();
 
-    const exercise = { 
+  const exercise = { 
     description: req.body.description,
     duration: Number(req.body.duration),
     date: dateStringFormat.toDateString()
   };
 
-  User.findByIdAndUpdate(req.params._id, {$push: { exercices: exercise } }, function(err, result) {
+  User.findByIdAndUpdate(req.params._id,
+    {$push: { exercices: exercise } },
+    { new: true},
+     function(err, result) {
     if (err) {
       res.send(err);
     } else {
-      user.description = exercise.description;
-      user.duration = exercise.duration;
-      user.date = exercise.date;
-      delete user.exercices;
-      res.json(user);
+      let returnObj ={
+        "_id":req.params._id,
+        "username":user.username,
+        "date":exercise.date,
+        "duration":parseInt(exercise.duration),
+        "description":exercise.description
+      }
+      console.log(returnObj)
+      return res.json(returnObj)      
     }
   });
 });
 
 app.get('/api/users/:_id/logs', async function (req, res) {
   const user = await User.findById(req.params._id).lean().exec();
+  const numberOfExercises = Object.keys(user.exercices).length;
 
   var query = {
-      username: user.username
+      username: user.username,
   };
 
   if (req.query.from && req.query.to) {
-    query.date = { $gte: req.query.from, $lte: req.query.to }
+    query.exercices.date = { $gte: req.query.from, $lte: req.query.to };
   } else if (req.query.from) {
-    query.date = { $gte: req.query.from };
+    query.exercises.date = { $gte: req.query.from };
   } else if (req.query.to) {
-    query.date = { $lte: req.query.to };
+    query.exercises.date = { $lte: req.query.to };
   };
+
+  console.log(query);
 
   let exercises = {};
 
@@ -124,14 +134,12 @@ app.get('/api/users/:_id/logs', async function (req, res) {
     exercises = await User.find(query).lean().exec();
   };
 
-  const numberOfExercises = await User.find({username: user.username}).count().exec();
-
   exercises.forEach(element => {
     element.date = element.date.toDateString()
   });
 
-  user.count = numberOfExercises;
-  user.log = exercises;
+  /*user.count = numberOfExercises;
+  user.log = exercises;*/
   res.json(user);
 });
 
