@@ -122,20 +122,23 @@ app.get('/api/users/:_id/logs', async function (req, res) {
   } else if (req.query.to) {
     query = { $lte: toDate };
   };
-  
+
   var result;
 
   if (req.query.limit && query) {
+    console.log('here');
     result = await User.aggregate().match({'username' : user.username}).unwind('log').match({'log.date' : query }).limit(parseInt(req.query.limit))
                     .group({'_id':'$_id', 'username': {"$first": "$username"}, 'log': {'$push': '$log'}}).exec();
+    result = result[0];
   } else if (query) {
+    console.log('here');
     result = await User.aggregate().match({'username' : user.username}).unwind('log').match({'log.date' : query })
                     .group({'_id':'$_id', 'username': {"$first": "$username"}, 'log': {'$push': '$log'}}).exec();
+    result = result[0];
   } else {
     result = user;
-  };
- 
-  result = result[0];
+    console.log(result)
+  }; 
 
   result.log.forEach(element => {
     element.date = element.date.toDateString()
