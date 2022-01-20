@@ -125,12 +125,14 @@ app.get('/api/users/:_id/logs', async function (req, res) {
   
   var result;
 
-  if (req.query.limit) {
+  if (req.query.limit && query) {
     result = await User.aggregate().match({'username' : user.username}).unwind('log').match({'log.date' : query }).limit(parseInt(req.query.limit))
                     .group({'_id':'$_id', 'username': {"$first": "$username"}, 'log': {'$push': '$log'}}).exec();
-  } else {
+  } else if (query) {
     result = await User.aggregate().match({'username' : user.username}).unwind('log').match({'log.date' : query })
                     .group({'_id':'$_id', 'username': {"$first": "$username"}, 'log': {'$push': '$log'}}).exec();
+  } else {
+    result = user;
   };
  
   result = result[0];
