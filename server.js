@@ -110,44 +110,37 @@ app.post('/api/users/:_id/exercises', async function (req, res) {
 app.get('/api/users/:_id/logs', async function (req, res) {
   const user = await User.findById(req.params._id).lean().exec();
   const numberOfExercises = Object.keys(user.log).length;
-
- /*var query = {
-      username: user.username,
-      log: ""
-  };  
-  
-  if (req.query.from && req.query.to) {
-    query.log = { $gte: req.query.from, $lte: req.query.to };
-  } else if (req.query.from) {
-    query.log = { $gte: req.query.from };
-  } else if (req.query.to) {
-    query.log = { $lte: req.query.to };
-  };
   
   var fromDate = new Date(req.query.from);
   var toDate = new Date(req.query.to);
-  
-  var query = {"username": user.username, "log.date": { $gte: fromDate } };
-  
-  console.log(query);
-  
-  let result = {};
-  
-  if (req.query.limit) {
-    result = await User.find(query).limit(parseInt(req.query.limit)).lean().exec();
-  } else {
-    result = await User.find(query).lean().exec();
+
+  var query; 
+  if (req.query.from && req.query.to) {
+    query = { $gte: fromDate, $lte: toDate };
+  } else if (req.query.from) {
+    query = { $gte: fromDate };
+  } else if (req.query.to) {
+    query = { $lte: toDate };
   };
   
-  console.log(result);
-  */
+  var result;
 
-  user.log.forEach(element => {
+  if (req.query.limit) {
+    result = await User.aggregate().match({'username' : user.username}).unwind('log').match({'log.date' : query }).limit(parseInt(req.query.limit))
+                    .group({'_id':'$_id', 'username': {"$first": "$username"}, 'log': {'$push': '$log'}}).exec();
+  } else {
+    result = await User.aggregate().match({'username' : user.username}).unwind('log').match({'log.date' : query })
+                    .group({'_id':'$_id', 'username': {"$first": "$username"}, 'log': {'$push': '$log'}}).exec();
+  };
+ 
+  result = result[0];
+
+  result.log.forEach(element => {
     element.date = element.date.toDateString()
   });
 
-  user.count = numberOfExercises;
-  res.json(user);
+  result.count = numberOfExercises;
+  res.json(result);
 });
 
 const listener = app.listen(process.env.PORT || 3000, () => {
