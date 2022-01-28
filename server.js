@@ -125,13 +125,21 @@ app.get('/api/users/:_id/logs', async function (req, res) {
 
   var result;
 
+  console.log(query);
+
   if (req.query.limit && query) {
+    console.log('here');
     result = await User.aggregate().match({'username' : user.username}).unwind('log').match({'log.date' : query }).limit(parseInt(req.query.limit))
                     .group({'_id':'$_id', 'username': {"$first": "$username"}, 'log': {'$push': '$log'}}).exec();
     result = result[0];
     numberOfExercises = Object.keys(result.log).length;
   } else if (query) {
     result = await User.aggregate().match({'username' : user.username}).unwind('log').match({'log.date' : query })
+                    .group({'_id':'$_id', 'username': {"$first": "$username"}, 'log': {'$push': '$log'}}).exec();
+    result = result[0];
+    numberOfExercises = Object.keys(result.log).length;
+  } else if (req.query.limit) {
+    result = await User.aggregate().match({'username' : user.username}).unwind('log').limit(parseInt(req.query.limit))
                     .group({'_id':'$_id', 'username': {"$first": "$username"}, 'log': {'$push': '$log'}}).exec();
     result = result[0];
     numberOfExercises = Object.keys(result.log).length;
@@ -144,6 +152,7 @@ app.get('/api/users/:_id/logs', async function (req, res) {
   });
 
   result.count = numberOfExercises;
+  console.log(result);
   res.json(result);
 });
 
